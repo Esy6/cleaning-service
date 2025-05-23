@@ -1,42 +1,36 @@
 <?php
- 
-// Email address verification 
-function isEmail($email) {
-    return filter_var($email, FILTER_VALIDATE_EMAIL);
+// filepath: z:\royan.at\royan cleaning\www\contact.php
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Daten aus dem Formular holen und bereinigen
+    $name    = strip_tags(trim($_POST["name"]));
+    $email   = filter_var(trim($_POST["email"]), FILTER_SANITIZE_EMAIL);
+    $phone   = strip_tags(trim($_POST["phone"]));
+    $message = strip_tags(trim($_POST["message"]));
+
+    // Pflichtfelder prüfen
+    if (empty($name) || empty($email) || empty($message)) {
+        echo "Bitte füllen Sie alle Pflichtfelder aus.";
+        exit;
+    }
+
+    // E-Mail-Inhalt
+    $to      = "info@royanian.com";
+    $subject = "Neue Kontaktanfrage von $name";
+    $body    = "Name: $name\n";
+    $body   .= "Email: $email\n";
+    $body   .= "Telefon: $phone\n";
+    $body   .= "Nachricht:\n$message\n";
+
+    $headers = "From: $name <$email>";
+
+    // E-Mail senden
+    if (mail($to, $subject, $body, $headers)) {
+        echo "Vielen Dank für Ihre Anfrage! Wir melden uns so bald wie möglich.";
+    } else {
+        echo "Es gab ein Problem beim Senden Ihrer Nachricht. Bitte versuchen Sie es später erneut.";
+    }
+} else {
+    echo "Ungültige Anfrage.";
 }
- 
-if($_POST) {
- 
-    // Enter the email where you want to receive the message
-    $emailTo = e.royanian@royanian.com;
- 
-    $clientEmail = addslashes(trim($_POST['email']));
-    $subject = addslashes(trim($_POST['subject']));
-    $message = addslashes(trim($_POST['message']));
-    $antispam = addslashes(trim($_POST['antispam']));
- 
-    $array = array('emailMessage' => '', 'subjectMessage' => '', 'messageMessage' => '', 'antispamMessage' => '');
- 
-    if(!isEmail($clientEmail)) {
-        $array['emailMessage'] = 'Invalid email!';
-    }
-    if($subject == '') {
-        $array['subjectMessage'] = 'Empty subject!';
-    }
-    if($message == '') {
-        $array['messageMessage'] = 'Empty message!';
-    }
-    if($antispam != '12') {
-        $array['antispamMessage'] = 'Wrong antispam answer!';
-    }
-    if(isEmail($clientEmail) && $subject != '' && $message != '' && $antispam == '12') {
-        // Send email
-        $headers = "From: " . $clientEmail . " <" . $clientEmail . ">" . "\r\n" . "Reply-To: " . $clientEmail;
-        mail($emailTo, $subject . " (bootstrap contact form tutorial)", $message, $headers);
-    }
- 
-    echo json_encode($array);
- 
-}
- 
 ?>
